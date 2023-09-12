@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginStart="10dp"
+    android:weightSum="2">
+
+    <TextView
+        android:id="@+id/textview_divition"
+        android:layout_width="0dp"
+        android:layout_weight="0.3"
+        android:layout_height="wrap_content"
+        android:text="구분"/>
+    <TextView
+        android:id="@+id/textview_term"
+        android:layout_width="0dp"
+        android:layout_weight="0.3"
+        android:layout_height="wrap_content"
+        android:text="학기"/>
+    <TextView
+        android:id="@+id/textview_subject"
+        android:layout_width="0dp"
+        android:layout_weight="0.7"
+        android:layout_height="wrap_content"
+        android:text="교과목명"/>
+    <TextView
+        android:id="@+id/textview_major"
+        android:layout_width="0dp"
+        android:layout_weight="0.7"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:text="학과"/>
+    <TextView
+        android:id="@+id/textview_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="삭제"
+        android:layout_gravity="center"
+        android:textColor="@color/main"
+        android:textSize="16sp"/>
+</LinearLayout>

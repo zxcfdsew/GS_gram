@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="5dp"
+    android:layout_marginBottom="5dp"
+    android:elevation="1dp"
+    android:weightSum="6"
+    android:orientation="horizontal"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
+    <TextView
+        android:id="@+id/textview_subject"
+        android:layout_width="0dp"
+        android:layout_weight="2.5"
+        android:layout_height="wrap_content"
+        android:paddingLeft="8dp"
+        android:maxEms="12"
+        android:minEms="10"
+        android:textSize="14sp"
+        android:text="교과목명"/>
+    <TextView
+        android:id="@+id/textview_grade"
+        android:layout_width="0dp"
+        android:layout_weight="0.5"
+        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:text="학년"/>
+    <TextView
+        android:id="@+id/textview_term"
+        android:layout_width="0dp"
+        android:layout_weight="0.5"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:maxEms="2"
+        android:minEms="2"
+        android:textSize="14sp"
+        android:text="학기"/>
+
+    <TextView
+        android:id="@+id/textview_divition"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="이수구분"/>
+
+
+    <TextView
+        android:id="@+id/textview_credit"
+        android:layout_width="0dp"
+        android:layout_weight="0.7"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="학점"/>
+    <TextView
+        android:id="@+id/textview_confirm"
+        android:layout_width="0dp"
+        android:layout_weight="0.8"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="구분"/>
+
+</LinearLayout>

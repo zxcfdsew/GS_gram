@@ -1,0 +1,549 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/csv_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|start"
+            android:text="csv"
+            android:visibility="visible"/>
+
+        <Spinner
+            android:id="@+id/gradeSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/initCellStateBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="삭제"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/addScheduleBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="추가"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/modifyBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:text="수정" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#D3D3D3"
+        android:gravity="center|top"
+        android:orientation="vertical"
+        android:padding="1dp">
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#D3D3D3"
+            android:columnCount="6"
+            android:paddingBottom="1dp">
+
+            <TextView
+                android:id="@+id/baselineTv"
+                android:layout_width="45dp"
+                android:background="@drawable/schedule_cell_base"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/monTv"
+                android:layout_columnWeight="1"
+                android:background="@drawable/schedule_cell_base"
+                android:gravity="center"
+                android:text="월" />
+
+            <TextView
+                android:id="@+id/tueTv"
+                android:layout_columnWeight="1"
+                android:background="@drawable/schedule_cell_base"
+                android:gravity="center"
+                android:text="화" />
+
+            <TextView
+                android:id="@+id/wedTv"
+                android:layout_columnWeight="1"
+                android:background="@drawable/schedule_cell_base"
+                android:gravity="center"
+                android:text="수" />
+
+            <TextView
+                android:id="@+id/thuTv"
+                android:layout_columnWeight="1"
+                android:background="@drawable/schedule_cell_base"
+                android:gravity="center"
+                android:text="목" />
+
+            <TextView
+                android:id="@+id/friTv"
+                android:layout_columnWeight="1"
+                android:background="@drawable/schedule_cell_base"
+                android:gravity="center"
+                android:text="금" />
+
+        </GridLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <GridLayout
+                    android:layout_width="45dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/classTxt1"
+                        android:layout_gravity="center"
+                        android:width="45dp"
+                        android:height="80dp"
+                        android:background="@drawable/schedule_cell_base"
+                        android:gravity="center"
+                        android:text="1교시\n(09:00)" />
+
+                    <TextView
+                        android:id="@+id/classTxt2"
+                        android:layout_gravity="center"
+                        android:width="45dp"
+                        android:height="80dp"
+                        android:background="@drawable/schedule_cell_base"
+                        android:gravity="center"
+                        android:text="2교시\n(10:00)" />
+
+                    <TextView
+                        android:id="@+id/classTxt3"
+                        android:layout_gravity="center"
+                        android:width="45dp"
+                        android:height="80dp"
+                        android:background="@drawable/schedule_cell_base"
+                        android:gravity="center"
+                        android:text="3교시\n(11:00)" />
+
+                    <TextView
+                        android:id="@+id/classTxt4"
+                        android:layout_gravity="center"
+                        android:width="45dp"
+                        android:height="80dp"
+                        android:background="@drawable/schedule_cell_base"
+                        android:gravity="center"
+                        android:text="4교시\n(12:00)" />
+
+                    <TextView
+                        android:id="@+id/classTxt5"
+                        android:layout_gravity="center"
+                        android:width="45dp"
+                        android:height="80dp"
+                        android:background="@drawable/schedule_cell_base"
+                        android:gravity="center"
+                        android:text="5교시\n(13:00)" />
+
+                    <TextView
+                        android:id="@+id/classTxt6"
+                        android:layout_gravity="center"
+                        android:width="45dp"
+                        android:height="80dp"
+                        android:background="@drawable/schedule_cell_base"
+                        android:gravity="center"
+                        android:text="6교시\n(14:00)" />
+
+                    <TextView
+                        android:id="@+id/classTxt7"
+                        android:layout_gravity="center"
+                        android:width="45dp"
+                        android:height="80dp"
+                        android:background="@drawable/schedule_cell_base"
+                        android:gravity="center"
+                        android:text="7교시\n(15:00)" />
+
+                    <TextView
+                        android:id="@+id/classTxt8"
+                        android:layout_gravity="center"
+                        android:width="45dp"
+                        android:height="80dp"
+                        android:background="@drawable/schedule_cell_base"
+                        android:gravity="center"
+                        android:text="8교시\n(16:00)" />
+
+                    <TextView
+                        android:id="@+id/classTxt9"
+                        android:layout_gravity="center"
+                        android:width="45dp"
+                        android:height="80dp"
+                        android:background="@drawable/schedule_cell_base"
+                        android:gravity="center"
+                        android:text="9교시\n(17:00)" />
+
+                </GridLayout>
+
+                <GridLayout
+                    android:id="@+id/cellGridLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="5">
+
+                    <TextView
+                        android:id="@+id/timeRow0Col0"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow0Col1"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow0Col2"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow0Col3"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow0Col4"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow1Col0"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow1Col1"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow1Col2"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow1Col3"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow1Col4"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow2Col0"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow2Col1"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow2Col2"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow2Col3"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow2Col4"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+
+                    <TextView
+                        android:id="@+id/timeRow3Col0"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow3Col1"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow3Col2"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow3Col3"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow3Col4"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+
+                    <TextView
+                        android:id="@+id/timeRow4Col0"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow4Col1"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow4Col2"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow4Col3"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow4Col4"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+
+                    <TextView
+                        android:id="@+id/timeRow5Col0"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow5Col1"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow5Col2"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow5Col3"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow5Col4"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+
+                    <TextView
+                        android:id="@+id/timeRow6Col0"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow6Col1"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow6Col2"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow6Col3"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow6Col4"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+
+                    <TextView
+                        android:id="@+id/timeRow7Col0"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow7Col1"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow7Col2"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow7Col3"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow7Col4"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+
+                    <TextView
+                        android:id="@+id/timeRow8Col0"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow8Col1"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow8Col2"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow8Col3"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                    <TextView
+                        android:id="@+id/timeRow8Col4"
+                        android:layout_width="60dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/schedule_cell"
+                        android:padding="5dp" />
+
+                </GridLayout>
+
+
+            </LinearLayout>
+
+
+        </ScrollView>
+
+    </LinearLayout>
+
+</LinearLayout>

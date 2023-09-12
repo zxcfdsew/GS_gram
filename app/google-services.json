@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "815157924099",
+    "project_id": "gs-gram",
+    "storage_bucket": "gs-gram.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:815157924099:android:00b12bb72171617a6c5936",
+        "android_client_info": {
+          "package_name": "com.sample.gs_gram"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "815157924099-fm6sqeg1i4fo63pvb50qlnt7u1me9rmb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtYyBtzEuk6BacS7pYGuEh8D1vLDIOhrQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "815157924099-fm6sqeg1i4fo63pvb50qlnt7u1me9rmb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
