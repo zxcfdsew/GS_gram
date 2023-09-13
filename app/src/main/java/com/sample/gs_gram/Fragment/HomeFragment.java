@@ -1,7 +1,9 @@
 package com.sample.gs_gram.Fragment;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -21,10 +23,16 @@ import android.widget.GridLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.sample.gs_gram.Activity.CSVActivity;
 import com.sample.gs_gram.Data.ScheduleCellData;
 import com.sample.gs_gram.R;
 import com.sample.gs_gram.databinding.AddScheduleDialogBinding;
@@ -39,6 +47,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class HomeFragment extends Fragment {
     private FragmentHomeBinding mBinding;
@@ -55,11 +64,15 @@ public class HomeFragment extends Fragment {
     private String currentGrade = "1학년 1학기";
     private Map<TextView, String> removedTextView = new HashMap<>();
     private ArrayList<String> titleArray = new ArrayList<>();
+    private Context mContext;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedIstanceState) {
         mBinding = FragmentHomeBinding.inflate(inflater);
         View view = mBinding.getRoot();
+
+        mStore = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
 
         baseSetting();
         initCellStatus();
@@ -73,8 +86,8 @@ public class HomeFragment extends Fragment {
                     if (modifySchedule) {
                         if (cellStatus[row][col].equals("selected")) {
                             changeCellBackgroundColor(textView, Color.parseColor("#FFFFFF"));
-                            cellStatus[row][col] = "null";
-                        } else if (cellStatus[row][col].equals("null")) {
+                            cellStatus[row][col] = "none";
+                        } else if (cellStatus[row][col].equals("none")) {
                             changeCellBackgroundColor(textView, Color.parseColor("#D3D3D3"));
                             cellStatus[row][col] = "selected";
                         } else if (cellStatus[row][col].equals("using")) {
@@ -101,6 +114,10 @@ public class HomeFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 currentGrade = spinnerItems[position];
+                refreshCellLayout();
+                addView();
+                initCellStatus();
+                downloadFromFireStore();
             }
 
             @Override
@@ -112,7 +129,13 @@ public class HomeFragment extends Fragment {
         mBinding.addScheduleBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showAddDialog();
+                boolean checking = false;
+                ArrayList<String> deletingArray = returnCellInfo("deleting");
+                if (deletingArray.size() == 0) {
+                    showAddDialog();
+                } else {
+                    Toast.makeText(getActivity(), "다시 선택해주세요", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -120,13 +143,13 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (modifySchedule) {
-                    refreshCellLayout();
+                    uploadToFireStore();
                     modifySchedule = false;
                     mBinding.modifyBtn.setText("수정");
                     mBinding.addScheduleBtn.setVisibility(View.GONE);
                     mBinding.initCellStateBtn.setVisibility(View.GONE);
                     mBinding.gradeSpinner.setVisibility(View.VISIBLE);
-                    initCellStatus();
+                    setCheckedCelltoDefault();
                 } else {
                     modifySchedule = true;
                     mBinding.modifyBtn.setText("저장");
@@ -145,9 +168,9 @@ public class HomeFragment extends Fragment {
                     for (int j = 0; j < cellStatus[i].length; j++) {
                         if (cellStatus[i][j].equals("deleting")) {
                             checking = "deleting";
-                            break;
                         } else if (cellStatus[i][j].equals("selected")) {
-                            checking = "true";
+                            checking = "selected";
+                            break;
                         }
                     }
                 }
@@ -158,10 +181,18 @@ public class HomeFragment extends Fragment {
                     changeCellStatus();
                     mergeCell();
                 } else if (checking.equals("selected")) {
-                    Toast.makeText(getActivity(), "삭제할 수업이 없습니다", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "다시 선택해주세요", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity(), "시간대를 선택해주세요", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        mBinding.csvButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), CSVActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -171,15 +202,23 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        addView();
         refreshCellLayout();
         setClassCellStyle();
         mergeCell();
+        downloadFromFireStore();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         mBinding = null;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = context;
     }
 
     private void initCellStatus() {
@@ -189,7 +228,7 @@ public class HomeFragment extends Fragment {
             TextView textView = cells.get(cellCoordinate);
             textView.setText("");
             changeCellBackgroundColor(textView, Color.parseColor("#FFFFFF"));
-            cellStatus[row][col] = "null";
+            cellStatus[row][col] = "none";
             scheduleCellDatas[row][col] = null;
         }
         setCheckedCelltoDefault();
@@ -213,11 +252,11 @@ public class HomeFragment extends Fragment {
 
     private ArrayList<String> returnCellInfo(String statusType) {
         ArrayList<String> arrayList = new ArrayList<>();
-        if (statusType.equals("null")) {
+        if (statusType.equals("none")) {
             for (int i = 0; i < cellStatus.length; i++) {
                 for (int j = 0; j < cellStatus[i].length; j++) {
-                    if (cellStatus[i][j].equals("null")) {
-                        arrayList.add(i+","+j);
+                    if (cellStatus[i][j].equals("none")) {
+                        arrayList.add(i + "," + j);
                     }
                 }
             }
@@ -225,7 +264,7 @@ public class HomeFragment extends Fragment {
             for (int i = 0; i < cellStatus.length; i++) {
                 for (int j = 0; j < cellStatus[i].length; j++) {
                     if (cellStatus[i][j].equals("selected")) {
-                        arrayList.add(i+","+j);
+                        arrayList.add(i + "," + j);
                     }
                 }
             }
@@ -233,7 +272,7 @@ public class HomeFragment extends Fragment {
             for (int i = 0; i < cellStatus.length; i++) {
                 for (int j = 0; j < cellStatus[i].length; j++) {
                     if (cellStatus[i][j].equals("deleting")) {
-                        arrayList.add(i+","+j);
+                        arrayList.add(i + "," + j);
                     }
                 }
             }
@@ -241,7 +280,7 @@ public class HomeFragment extends Fragment {
             for (int i = 0; i < cellStatus.length; i++) {
                 for (int j = 0; j < cellStatus[i].length; j++) {
                     if (cellStatus[i][j].equals("using")) {
-                        arrayList.add(i+","+j);
+                        arrayList.add(i + "," + j);
                     }
                 }
             }
@@ -268,30 +307,30 @@ public class HomeFragment extends Fragment {
                             for (String k : selectedCoordinate) {
                                 int row = getTextViewCoordinate(k)[0];
                                 int col = getTextViewCoordinate(k)[1];
-                                if (colorIndex >= colors.length-1) {
+                                if (colorIndex >= colors.length - 1) {
                                     colorIndex = 0;
                                 }
                                 int top = 0;
                                 try {
-                                    top = scheduleCellDatas[row-1][col] == null ? Color.parseColor("#FFFFFF") : scheduleCellDatas[row-1][col].getColor();
+                                    top = scheduleCellDatas[row - 1][col] == null ? Color.parseColor("#FFFFFF") : scheduleCellDatas[row - 1][col].getColor();
                                 } catch (Exception e) {
 
                                 }
                                 int left = 0;
                                 try {
-                                    left = scheduleCellDatas[row][col-1] == null ? Color.parseColor("#FFFFFF") : scheduleCellDatas[row][col-1].getColor();
+                                    left = scheduleCellDatas[row][col - 1] == null ? Color.parseColor("#FFFFFF") : scheduleCellDatas[row][col - 1].getColor();
                                 } catch (Exception e) {
 
                                 }
                                 int right = 0;
                                 try {
-                                    right = scheduleCellDatas[row][col+1] == null ? Color.parseColor("#FFFFFF") : scheduleCellDatas[row][col+1].getColor();
+                                    right = scheduleCellDatas[row][col + 1] == null ? Color.parseColor("#FFFFFF") : scheduleCellDatas[row][col + 1].getColor();
                                 } catch (Exception e) {
 
                                 }
                                 int bottom = 0;
                                 try {
-                                    bottom = scheduleCellDatas[row+1][col] == null ? Color.parseColor("#FFFFFF") : scheduleCellDatas[row+1][col].getColor();
+                                    bottom = scheduleCellDatas[row + 1][col] == null ? Color.parseColor("#FFFFFF") : scheduleCellDatas[row + 1][col].getColor();
                                 } catch (Exception e) {
 
                                 }
@@ -308,7 +347,7 @@ public class HomeFragment extends Fragment {
                                     sideColors.add(bottom);
                                 }
                                 while (sideColors.contains(colors[colorIndex])) {
-                                    if (colorIndex >= colors.length-1) {
+                                    if (colorIndex >= colors.length - 1) {
                                         colorIndex = 0;
                                     } else {
                                         colorIndex++;
@@ -341,7 +380,7 @@ public class HomeFragment extends Fragment {
                             for (String k : selectedCoordinate) {
                                 int row = getTextViewCoordinate(k)[0];
                                 int col = getTextViewCoordinate(k)[1];
-                                cellStatus[row][col] = "null";
+                                cellStatus[row][col] = "none";
                             }
                             Toast.makeText(getActivity(), "같은 수업이 있습니다", Toast.LENGTH_SHORT).show();
                         }
@@ -388,11 +427,11 @@ public class HomeFragment extends Fragment {
             Log.d("mergeing", coordinate);
             int count = 1;
             for (int k = 0; k < cellrow; k++) {
-                if (i+count < cellStatus.length
+                if (i + count < cellStatus.length
                         && scheduleCellDatas[i][j] != null
-                        && scheduleCellDatas[i+count][j] != null
-                        && scheduleCellDatas[i][j].getTitle().equals(scheduleCellDatas[i+count][j].getTitle())) {
-                    removeCell.add(i+count+","+j);
+                        && scheduleCellDatas[i + count][j] != null
+                        && scheduleCellDatas[i][j].getTitle().equals(scheduleCellDatas[i + count][j].getTitle())) {
+                    removeCell.add(i + count + "," + j);
                     count++;
                 } else {
                     break;
@@ -425,7 +464,6 @@ public class HomeFragment extends Fragment {
             GridLayout.LayoutParams params = new GridLayout.LayoutParams(row, column);
             params.width = (int) calculatedWidth();
             params.height = (int) calculatedHeight();
-            scheduleCellDatas[i][j] = null;
             try {
                 Log.d("removedTextViewCount", textView.toString());
                 mBinding.cellGridLayout.addView(textView);
@@ -436,25 +474,26 @@ public class HomeFragment extends Fragment {
     }
 
     private double calculatedWidth() {
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
         double width = metrics.widthPixels;
         return (width - DpToPx(65)) / 5;
     }
+
     private double calculatedHeight() {
-//        DisplayMetrics metrics = getResources().getDisplayMetrics();
+//        DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
 //        double height = metrics.heightPixels;
         return DpToPx(80);
     }
 
     private int DpToPx(int dp) {
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
         double density = metrics.density;
-        double px = dp*density;
+        double px = dp * density;
         return (int) px;
     }
 
     private int PxToDp(int px) {
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        DisplayMetrics metrics = mContext.getResources().getDisplayMetrics();
         double desity = metrics.density;
         double dp = px / desity;
         return (int) dp;
@@ -465,13 +504,16 @@ public class HomeFragment extends Fragment {
             int i = getTextViewCoordinate(coordinate)[0];
             int j = getTextViewCoordinate(coordinate)[1];
             TextView textView = cells.get(coordinate);
-            if (cellStatus[i][j].equals("null")) {
+            if (cellStatus[i][j].equals("none")) {
                 changeCellBackgroundColor(textView, Color.parseColor("#FFFFFF"));
                 textView.setText("");
             } else if (cellStatus[i][j].equals("using")) {
                 ScheduleCellData data = scheduleCellDatas[i][j];
+                Log.d("scheduleCellDatas", Arrays.deepToString(scheduleCellDatas));
+                Log.d("scheduleCellData", Arrays.deepToString(cellStatus));
                 changeCellBackgroundColor(textView, data.getColor());
                 textView.setText(changeCellTextStyle(data.getTitle(), data.getLocation()));
+
             } else if (cellStatus[i][j].equals("deleting")) {
 
             }
@@ -479,14 +521,16 @@ public class HomeFragment extends Fragment {
     }
 
     private void setCheckedCelltoDefault() {
+        Log.d("setDefault", "before" + Arrays.deepToString(cellStatus));
         for (int i = 0; i < cellStatus.length; i++) {
             for (int j = 0; j < cellStatus[i].length; j++) {
-                if (cellStatus[i][j] == null || cellStatus.equals("selected")) {
-                    cellStatus[i][j] = "null";
+                if (cellStatus[i][j] == null | cellStatus[i][j].equals("selected")) {
+                    cellStatus[i][j] = "none";
                 }
             }
-
         }
+        Log.d("setDefault", "After" + Arrays.deepToString(cellStatus));
+        changeCellStatus();
     }
 
     private SpannableStringBuilder changeCellTextStyle(String title, String location) {
@@ -520,7 +564,7 @@ public class HomeFragment extends Fragment {
             for (int j = 0; j < cellStatus[i].length; j++) {
                 if (cellStatus[i][j].equals("deleting")) {
                     delCell.add(new int[]{i, j});
-                    selectedCoordinate.add(i+","+j);
+                    selectedCoordinate.add(i + "," + j);
                     delCellTitle.add(scheduleCellDatas[i][j].getTitle());
                 }
             }
@@ -533,19 +577,85 @@ public class HomeFragment extends Fragment {
                 titleArray.remove(scheduleCellDatas[i][j].getTitle());
             }
             for (int k = 0; k < cellrow; k++) {
-                if (i+count < cellStatus.length
-                && scheduleCellDatas[i][j] != null
-                && scheduleCellDatas[i+count][j] != null
-                && scheduleCellDatas[i][j].getTitle().equals(scheduleCellDatas[i+count][j].getTitle())) {
-                    delCell.add(new int[] {i+count, j});
+                if (i + count < cellStatus.length
+                        && scheduleCellDatas[i][j] != null
+                        && scheduleCellDatas[i + count][j] != null
+                        && scheduleCellDatas[i][j].getTitle().equals(scheduleCellDatas[i + count][j].getTitle())) {
+                    delCell.add(new int[]{i + count, j});
                 }
                 count++;
             }
         }
         for (int[] delCoordinate : delCell) {
-            cellStatus[delCoordinate[0]][delCoordinate[1]] = "null";
-            scheduleCellDatas[delCoordinate[1]][delCoordinate[1]] = null;
+            cellStatus[delCoordinate[0]][delCoordinate[1]] = "none";
+            scheduleCellDatas[delCoordinate[0]][delCoordinate[1]] = null;
         }
+    }
+
+    private void uploadToFireStore() {
+        Map<String, ScheduleCellData> cellDatas = new HashMap<>();
+        for (int i = 0; i < cellStatus.length; i++) {
+            for (int j = 0; j < cellStatus[i].length; j++) {
+                if (cellStatus[i][j].equals("using")) {
+                    cellDatas.put(i + "-" + j, scheduleCellDatas[i][j]);
+                }
+            }
+        }
+
+        mStore.collection("Account")
+                .document(mAuth.getUid())
+                .collection("schedule")
+                .document(currentGrade)
+                .set(cellDatas).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Toast.makeText(getActivity(), "저장되었습니다", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void downloadFromFireStore() {
+        initCellStatus();
+        mStore.collection("Account").document(mAuth.getUid())
+                .collection("schedule").document(currentGrade)
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot documentSnapshot = task.getResult();
+                            if (documentSnapshot.exists()) {
+                                Map<String, Object> data = documentSnapshot.getData();
+                                for (String coordinate : data.keySet()) {
+                                    Map<String, Object> oneData = (Map<String, Object>) data.get(coordinate);
+                                    Log.d("database", String.valueOf(oneData));
+                                    if (!titleArray.contains((String.valueOf(oneData.get("title"))))) {
+                                        titleArray.add(oneData.get("title").toString());
+                                    }
+                                    ScheduleCellData scheduleCellData = new ScheduleCellData(
+                                            Integer.parseInt(oneData.get("row").toString()),
+                                            Integer.parseInt(oneData.get("col").toString()),
+                                            Integer.parseInt(oneData.get("color").toString()),
+                                            Integer.parseInt(oneData.get("colorIndex").toString()),
+                                            oneData.get("title").toString(),
+                                            oneData.get("time").toString(),
+                                            oneData.get("location").toString(),
+                                            oneData.get("professorName").toString());
+                                    if (Integer.parseInt(oneData.get("colorIndex").toString()) > colorIndex) {
+                                        colorIndex = Integer.parseInt(oneData.get("colorIndex").toString());
+                                    }
+                                    String[] splitedCoordinate = coordinate.split("-");
+                                    Integer[] tempCoordinate = Stream.of(splitedCoordinate).mapToInt(Integer::parseInt).boxed().toArray(Integer[]::new);
+                                    scheduleCellDatas[tempCoordinate[0]][tempCoordinate[1]] = scheduleCellData;
+                                    cellStatus[tempCoordinate[0]][tempCoordinate[1]] = "using";
+                                    changeCellStatus();
+                                    mergeCell();
+                                }
+                            } else {
+                                initCellStatus();
+                            }
+                        }
+                    }
+                });
     }
 
     private void setClassCellStyle() {
